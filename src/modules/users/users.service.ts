@@ -35,9 +35,13 @@ export class UsersService {
     });
   }
 
-  async create(data: CreateUserDto): Promise<User> {
+  async create(data: CreateUserDto): Promise<Omit<User, 'passwordHash'>> {
     const passwordHash = await this.hasherService.hashPassword(data.password);
+    const { firstName, lastName, email } = data;
 
-    return this.prisma.user.create({ data: { ...data, passwordHash } });
+    return this.prisma.user.create({
+      data: { firstName, lastName, email, passwordHash },
+      omit: { passwordHash: true },
+    });
   }
 }
