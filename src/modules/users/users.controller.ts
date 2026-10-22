@@ -8,7 +8,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  users(): Promise<User[]> {
+  users(): Promise<Omit<User, 'passwordHash'>[]> {
     return this.usersService.users({});
   }
 
