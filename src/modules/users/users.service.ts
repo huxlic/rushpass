@@ -2,10 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../infra/prisma/prisma.service.js';
 import { Prisma, User } from '../../generated/prisma/client.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
+import { HasherService } from '../../common/hasher/hasher.service.js';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly hasherService: HasherService,
+  ) {}
 
   async user(
     userWhereUniqueInput: Prisma.UserWhereUniqueInput,
@@ -22,7 +26,7 @@ export class UsersService {
     orderBy?: Prisma.UserOrderByWithRelationInput;
   }): Promise<User[]> {
     const { skip, take, cursor, where, orderBy } = params;
-    return await this.prisma.user.findMany({
+    return this.prisma.user.findMany({
       skip,
       take,
       cursor,
@@ -31,10 +35,9 @@ export class UsersService {
     });
   }
 
-  // async create(
-  //   data: CreateUserDto,
-  // ): Promise<User> {
-  //   const passwordHash = data.password;
-  //   return this.prisma.user.create({ data });
-  // }
+  async create(data: CreateUserDto): Promise<User> {
+    const passwordHash = await this.hasherService.hashPassword(data.password);
+
+    return this.prisma.user.create({ data: { ...data, passwordHash } });
+  }
 }

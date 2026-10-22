@@ -9,9 +9,10 @@ import { AppService } from './app.service.js';
 import { UsersModule } from './modules/users/users.module.js';
 import { ApiKeyMiddleware } from './middleware/api-key.middleware.js';
 import { PrismaModule } from './infra/prisma/prisma.module.js';
+import { HasherModule } from './common/hasher/hasher.module.js';
 
 @Module({
-  imports: [UsersModule, PrismaModule],
+  imports: [UsersModule, PrismaModule, HasherModule],
   controllers: [AppController],
   providers: [AppService],
 })

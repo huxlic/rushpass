@@ -6,14 +6,14 @@ import { User } from '../../generated/prisma/client.js';
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
-  
+
   @Get()
-  async users(): Promise<User[]> {
-    return this.usersService.users({})
+  users(): Promise<User[]> {
+    return this.usersService.users({});
   }
 
-  // @Post()
-  // async create(@Body() createUserDto: CreateUserDto): Promise<User> {
-  //   return this.usersService.create(createUserDto);
-  // }
+  @Post()
+  create(@Body() createUserDto: CreateUserDto): Promise<User> {
+    return this.usersService.create(createUserDto);
+  }
 }
