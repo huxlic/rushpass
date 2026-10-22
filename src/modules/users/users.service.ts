@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../infra/prisma/prisma.service.js';
 import { Prisma, User } from '../../generated/prisma/client.js';
+import { CreateUserDto } from './dto/create-user.dto.js';
 
 @Injectable()
 export class UsersService {
@@ -21,7 +22,7 @@ export class UsersService {
     orderBy?: Prisma.UserOrderByWithRelationInput;
   }): Promise<User[]> {
     const { skip, take, cursor, where, orderBy } = params;
-    return this.prisma.user.findMany({
+    return await this.prisma.user.findMany({
       skip,
       take,
       cursor,
@@ -30,7 +31,10 @@ export class UsersService {
     });
   }
 
-  async create(dto: Omit<Prisma.UserCreateInput, "passwordHash">): Promise<User> {
-    return this.prisma.user.create({ dto });
-  }
+  // async create(
+  //   data: CreateUserDto,
+  // ): Promise<User> {
+  //   const passwordHash = data.password;
+  //   return this.prisma.user.create({ data });
+  // }
 }
