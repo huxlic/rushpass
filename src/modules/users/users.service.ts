@@ -1,21 +1,36 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto.js';
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../infra/prisma/prisma.service.js';
+import { Prisma, User } from '../../generated/prisma/client.js';
 
 @Injectable()
 export class UsersService {
-  getAll(): string {
-    const user = 'null';
+  constructor(private readonly prisma: PrismaService) {}
 
-    if (!user) throw new NotFoundException("User not found")
-
-    return 'This action return all users';
+  async user(
+    userWhereUniqueInput: Prisma.UserWhereUniqueInput,
+  ): Promise<User | null> {
+    return this.prisma.user.findUnique({
+      where: userWhereUniqueInput,
+    });
+  }
+  async users(params: {
+    skip?: number;
+    take?: number;
+    cursor?: Prisma.UserWhereUniqueInput;
+    where?: Prisma.UserWhereInput;
+    orderBy?: Prisma.UserOrderByWithRelationInput;
+  }): Promise<User[]> {
+    const { skip, take, cursor, where, orderBy } = params;
+    return this.prisma.user.findMany({
+      skip,
+      take,
+      cursor,
+      where,
+      orderBy,
+    });
   }
 
-  getSingle(id: number): string {
-    return `This action returns a #${id} of the user`;
-  }
-
-  create(data: CreateUserDto) {
-    return data;
+  async create(dto: Omit<Prisma.UserCreateInput, "passwordHash">): Promise<User> {
+    return this.prisma.user.create({ dto });
   }
 }
