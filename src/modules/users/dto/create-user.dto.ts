@@ -1,4 +1,10 @@
-import { IsEmail, IsString, IsStrongPassword, Length } from 'class-validator';
+import {
+  IsEmail,
+  IsString,
+  IsStrongPassword,
+  Length,
+  MaxLength,
+} from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class CreateUserDto {
@@ -16,8 +22,10 @@ export class CreateUserDto {
     typeof value === 'string' ? value.trim().toLowerCase() : value,
   )
   @IsEmail()
+  @Length(5, 100)
   email: string;
 
   @IsStrongPassword()
+  @MaxLength(20)
   password: string;
 }

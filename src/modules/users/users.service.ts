@@ -5,15 +5,10 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../infra/prisma/prisma.service.js';
 import { Prisma, User } from '../../generated/prisma/client.js';
-import { CreateUserDto } from './dto/create-user.dto.js';
-import { HasherService } from '../../common/hasher/hasher.service.js';
 
 @Injectable()
 export class UsersService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly hasherService: HasherService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async user(
     userWhereUniqueInput: Prisma.UserWhereUniqueInput,
@@ -27,6 +22,15 @@ export class UsersService {
 
     return user;
   }
+
+  async userOrNull(
+    userWhereUniqueInput: Prisma.UserWhereUniqueInput,
+  ): Promise<User | null> {
+    return await this.prisma.user.findUnique({
+      where: userWhereUniqueInput,
+    });
+  }
+
   async users(params: {
     skip?: number;
     take?: number;
@@ -45,13 +49,12 @@ export class UsersService {
     });
   }
 
-  async create(data: CreateUserDto): Promise<Omit<User, 'passwordHash'>> {
-    const passwordHash = await this.hasherService.hashPassword(data.password);
-    const { firstName, lastName, email } = data;
-
+  async create(
+    data: Prisma.UserCreateInput,
+  ): Promise<Omit<User, 'passwordHash'>> {
     try {
       return await this.prisma.user.create({
-        data: { firstName, lastName, email, passwordHash },
+        data,
         omit: { passwordHash: true },
       });
     } catch (err) {
@@ -63,5 +66,15 @@ export class UsersService {
       }
       throw err;
     }
+  }
+
+  async update(
+    userWhereUniqueInput: Prisma.UserWhereUniqueInput,
+    data: Prisma.UserUpdateInput,
+  ): Promise<User | null> {
+    return await this.prisma.user.update({
+      where: userWhereUniqueInput,
+      data,
+    });
   }
 }

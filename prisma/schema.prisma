@@ -24,4 +24,5 @@ model User {
 enum Role {
   ATTENDEE
   ORGANIZER
+  ADMIN
 }
