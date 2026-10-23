@@ -1,17 +1,18 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { User } from '../../generated/prisma/client.js';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto.js';
-import { PasswordHasher } from '@nestjs/authentication';
+import { PasswordHasher, TokenService } from '@nestjs/authentication';
 import { UsersService } from '../users/users.service.js';
+import { UserRT } from '../users/users.types.js';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly passwordHasher: PasswordHasher,
     private readonly usersService: UsersService,
+    private readonly tokenService: TokenService,
   ) {}
 
-  async register(data: RegisterDto): Promise<Omit<User, 'passwordHash'>> {
+  async register(data: RegisterDto): Promise<UserRT> {
     const passwordHash = await this.passwordHasher.hash(data.password);
     const { firstName, lastName, email } = data;
 
@@ -23,10 +24,7 @@ export class AuthService {
     });
   }
 
-  async login(
-    email: string,
-    password: string,
-  ): Promise<Omit<User, 'passwordHash'>> {
+  async login(email: string, password: string): Promise<UserRT> {
     const user = await this.usersService.userOrNull({ email });
 
     const valid = await this.passwordHasher.verify(
@@ -34,13 +32,20 @@ export class AuthService {
       user?.passwordHash,
     );
     if (!valid || !user?.passwordHash)
-      throw new BadRequestException('Invalid credentials');
+      throw new UnauthorizedException('Invalid credentials');
 
     if (this.passwordHasher.needsRehash(user.passwordHash)) {
-      const passwordHash = await this.passwordHasher.hash(password);
-      await this.usersService.update({ email }, { passwordHash });
+      try {
+        const passwordHash = await this.passwordHasher.hash(password);
+        await this.usersService.update({ email }, { passwordHash });
+      } catch (err) {
+        console.error(err);
+      }
     }
-
+    await this.tokenService.issue(user.id, {
+      method: 'password',
+      claims: { amr: ['pwd'] },
+    });
     return user;
   }
 }

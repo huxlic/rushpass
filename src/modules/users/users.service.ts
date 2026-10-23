@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../infra/prisma/prisma.service.js';
 import { Prisma, User } from '../../generated/prisma/client.js';
+import { UserRT } from './users.types.js';
 
 @Injectable()
 export class UsersService {
@@ -12,7 +13,7 @@ export class UsersService {
 
   async user(
     userWhereUniqueInput: Prisma.UserWhereUniqueInput,
-  ): Promise<Omit<User, 'passwordHash'> | null> {
+  ): Promise<UserRT | null> {
     const user = await this.prisma.user.findUnique({
       where: userWhereUniqueInput,
       omit: { passwordHash: true },
@@ -37,7 +38,7 @@ export class UsersService {
     cursor?: Prisma.UserWhereUniqueInput;
     where?: Prisma.UserWhereInput;
     orderBy?: Prisma.UserOrderByWithRelationInput;
-  }): Promise<Omit<User, 'passwordHash'>[]> {
+  }): Promise<UserRT[]> {
     const { skip, take, cursor, where, orderBy } = params;
     return this.prisma.user.findMany({
       skip,
@@ -51,7 +52,7 @@ export class UsersService {
 
   async create(
     data: Prisma.UserCreateInput,
-  ): Promise<Omit<User, 'passwordHash'>> {
+  ): Promise<UserRT> {
     try {
       return await this.prisma.user.create({
         data,

@@ -6,10 +6,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service.js';
-import { User } from '../../generated/prisma/client.js';
 import { RoleGuard } from '../../guards/role.guard.js';
 import { ResponseMessage } from '../../common/decorators/response-message.decorator.js';
 import { Roles } from '../../common/decorators/roles.decorator.js';
+import { UserRT } from './users.types.js';
 
 @Controller('users')
 export class UsersController {
@@ -19,7 +19,7 @@ export class UsersController {
   @Roles(['admin'])
   @UseGuards(RoleGuard)
   @ResponseMessage('All users retrieved')
-  users(): Promise<Omit<User, 'passwordHash'>[]> {
+  users(): Promise<UserRT[]> {
     return this.usersService.users({});
   }
 
@@ -28,7 +28,7 @@ export class UsersController {
   @UseGuards(RoleGuard)
   getSingle(
     @Param('id', new ParseUUIDPipe()) id: string,
-  ): Promise<Omit<User, 'passwordHash'> | null> {
+  ): Promise<UserRT | null> {
     return this.usersService.user({ id });
   }
 }
