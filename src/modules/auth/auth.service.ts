@@ -23,14 +23,15 @@ export class AuthService {
       passwordHash,
     });
   }
-
-  async login(email: string, password: string): Promise<UserRT> {
+  
+  async login(email: string, password: string) {
     const user = await this.usersService.userOrNull({ email });
 
     const valid = await this.passwordHasher.verify(
       password,
       user?.passwordHash,
     );
+    
     if (!valid || !user?.passwordHash)
       throw new UnauthorizedException('Invalid credentials');
 
@@ -42,10 +43,9 @@ export class AuthService {
         console.error(err);
       }
     }
-    await this.tokenService.issue(user.id, {
+    return this.tokenService.issue(user.id, {
       method: 'password',
       claims: { amr: ['pwd'] },
     });
-    return user;
   }
 }

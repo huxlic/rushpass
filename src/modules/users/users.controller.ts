@@ -10,6 +10,8 @@ import { RoleGuard } from '../../guards/role.guard.js';
 import { ResponseMessage } from '../../common/decorators/response-message.decorator.js';
 import { Roles } from '../../common/decorators/roles.decorator.js';
 import { UserRT } from './users.types.js';
+import { CurrentUser } from '@nestjs/authentication';
+import type { AuthUser } from '../auth/auth-user.js';
 
 @Controller('users')
 export class UsersController {
@@ -21,6 +23,11 @@ export class UsersController {
   @ResponseMessage('All users retrieved')
   users(): Promise<UserRT[]> {
     return this.usersService.users({});
+  }
+
+  @Get('/me')
+  me(@CurrentUser() user: AuthUser) {
+    return user;
   }
 
   @Get(':id')
