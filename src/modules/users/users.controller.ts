@@ -9,19 +9,23 @@ import { UsersService } from './users.service.js';
 import { User } from '../../generated/prisma/client.js';
 import { RoleGuard } from '../../guards/role.guard.js';
 import { ResponseMessage } from '../../common/decorators/response-message.decorator.js';
+import { Roles } from '../../common/decorators/roles.decorator.js';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get('/all')
+  @Roles(['admin'])
   @UseGuards(RoleGuard)
-  @ResponseMessage("All users retrieved")
+  @ResponseMessage('All users retrieved')
   users(): Promise<Omit<User, 'passwordHash'>[]> {
     return this.usersService.users({});
   }
 
   @Get(':id')
+  @Roles(['admin'])
+  @UseGuards(RoleGuard)
   getSingle(
     @Param('id', new ParseUUIDPipe()) id: string,
   ): Promise<Omit<User, 'passwordHash'> | null> {

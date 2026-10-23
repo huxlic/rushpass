@@ -1,7 +1,8 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { AuthService } from './auth.service.js';
 import { RegisterDto } from './dto/register.dto.js';
 import { LoginDto } from './dto/login.dto.js';
+import { ResponseMessage } from '../../common/decorators/response-message.decorator.js';
 
 @Controller('auth')
 export class AuthController {
@@ -13,6 +14,8 @@ export class AuthController {
   }
 
   @Post('/login')
+  @HttpCode(HttpStatus.OK)
+  @ResponseMessage('Login successful')
   login(@Body() loginDto: LoginDto) {
     const { email, password } = loginDto;
     return this.authService.login(email, password);
