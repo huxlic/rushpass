@@ -14,15 +14,16 @@ import { AuthenticationModule } from '@nestjs/authentication';
 import { OtpModule } from './modules/otp/otp.module.js';
 import { minutes, ThrottlerModule } from '@nestjs/throttler';
 import { RedisModule } from './modules/redis/redis.module.js';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
     UsersModule,
     PrismaModule,
     AuthModule,
-    // ConfigModule.forRoot({
-    //   isGlobal: true,
-    // }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     AuthenticationModule.forRootAsync({
       useFactory: () => ({
         accessToken: {
