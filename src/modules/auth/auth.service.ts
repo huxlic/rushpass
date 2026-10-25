@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto.js';
 import { PasswordHasher, TokenService } from '@nestjs/authentication';
 import { UsersService } from '../users/users.service.js';
@@ -33,7 +37,9 @@ export class AuthService {
     );
     
     if (!valid || !user?.passwordHash)
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('Invalid credentials', {errorCode: "invalid_credentials"});
+    
+    if (!user.verifiedAt) throw new ForbiddenException("You need to verify your email to perform this action", {errorCode: "email_unverified"})
 
     if (this.passwordHasher.needsRehash(user.passwordHash)) {
       try {

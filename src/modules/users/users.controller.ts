@@ -12,7 +12,9 @@ import { Roles } from '../../common/decorators/roles.decorator.js';
 import { UserRT } from './users.types.js';
 import { CurrentUser } from '@nestjs/authentication';
 import type { AuthUser } from '../auth/auth-user.js';
+import { SkipThrottle } from '@nestjs/throttler';
 
+@SkipThrottle()
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -24,10 +26,10 @@ export class UsersController {
   users(): Promise<UserRT[]> {
     return this.usersService.users({});
   }
-
+  
   @Get('/me')
   me(@CurrentUser() user: AuthUser) {
-    return user;
+    return user ?? [];
   }
 
   @Get(':id')

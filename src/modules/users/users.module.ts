@@ -5,7 +5,9 @@ import { PrismaModule } from '../../infra/prisma/prisma.module.js';
 
 @Module({
   controllers: [UsersController],
-  providers: [UsersService],
+  providers: [
+    UsersService,
+  ],
   imports: [PrismaModule],
   exports: [UsersService],
 })

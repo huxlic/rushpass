@@ -11,6 +11,9 @@ import { ApiKeyMiddleware } from './middleware/api-key.middleware.js';
 import { PrismaModule } from './infra/prisma/prisma.module.js';
 import { AuthModule } from './modules/auth/auth.module.js';
 import { AuthenticationModule } from '@nestjs/authentication';
+import { OtpModule } from './modules/otp/otp.module.js';
+import { minutes, ThrottlerModule } from '@nestjs/throttler';
+import { RedisModule } from './modules/redis/redis.module.js';
 
 @Module({
   imports: [
@@ -31,6 +34,16 @@ import { AuthenticationModule } from '@nestjs/authentication';
         refreshToken: false,
       }),
     }),
+    OtpModule,
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: minutes(10),
+          limit: 5,
+        },
+      ],
+    }),
+    RedisModule,
   ],
   controllers: [AppController],
   providers: [AppService],

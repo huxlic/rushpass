@@ -4,8 +4,10 @@ import { RegisterDto } from './dto/register.dto.js';
 import { LoginDto } from './dto/login.dto.js';
 import { ResponseMessage } from '../../common/decorators/response-message.decorator.js';
 import { Public } from '@nestjs/authentication';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @Public()
+@SkipThrottle()
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
