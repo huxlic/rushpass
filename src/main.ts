@@ -9,7 +9,7 @@ async function bootstrap() {
   app.setGlobalPrefix('/api');
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
   app.useGlobalInterceptors(new TransformInterceptor(app.get(Reflector)));
-  
+
   app.enableShutdownHooks();
   await app.listen(process.env.PORT ?? 3000);
 }

@@ -26,7 +26,7 @@ export class UsersController {
   users(): Promise<UserRT[]> {
     return this.usersService.users({});
   }
-  
+
   @Get('/me')
   me(@CurrentUser() user: AuthUser) {
     return user ?? [];

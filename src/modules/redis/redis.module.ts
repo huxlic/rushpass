@@ -22,6 +22,6 @@ export class RedisModule implements OnApplicationShutdown {
   constructor(@Inject(REDIS_CLIENT) private readonly client: RedisClient) {}
 
   async onApplicationShutdown() {
-    await this.client.close()
+    await this.client.close();
   }
 }

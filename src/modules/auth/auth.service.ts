@@ -27,7 +27,7 @@ export class AuthService {
       passwordHash,
     });
   }
-  
+
   async login(email: string, password: string) {
     const user = await this.usersService.userOrNull({ email });
 
@@ -35,11 +35,17 @@ export class AuthService {
       password,
       user?.passwordHash,
     );
-    
+
     if (!valid || !user?.passwordHash)
-      throw new UnauthorizedException('Invalid credentials', {errorCode: "invalid_credentials"});
-    
-    if (!user.verifiedAt) throw new ForbiddenException("You need to verify your email to perform this action", {errorCode: "email_unverified"})
+      throw new UnauthorizedException('Invalid credentials', {
+        errorCode: 'invalid_credentials',
+      });
+
+    if (!user.verifiedAt)
+      throw new ForbiddenException(
+        'You need to verify your email to perform this action',
+        { errorCode: 'email_unverified' },
+      );
 
     if (this.passwordHasher.needsRehash(user.passwordHash)) {
       try {

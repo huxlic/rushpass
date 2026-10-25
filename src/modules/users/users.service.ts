@@ -50,9 +50,7 @@ export class UsersService {
     });
   }
 
-  async create(
-    data: Prisma.UserCreateInput,
-  ): Promise<UserRT> {
+  async create(data: Prisma.UserCreateInput): Promise<UserRT> {
     try {
       return await this.prisma.user.create({
         data,
