@@ -6,7 +6,7 @@ import {
 import { RegisterDto } from './dto/register.dto.js';
 import { PasswordHasher, TokenService } from '@nestjs/authentication';
 import { UsersService } from '../users/users.service.js';
-import { UserRT } from '../users/users.types.js';
+import { OtpService } from '../otp/otp.service.js';
 
 @Injectable()
 export class AuthService {
@@ -14,18 +14,23 @@ export class AuthService {
     private readonly passwordHasher: PasswordHasher,
     private readonly usersService: UsersService,
     private readonly tokenService: TokenService,
+    private readonly otpService: OtpService,
   ) {}
 
-  async register(data: RegisterDto): Promise<UserRT> {
+  async register(data: RegisterDto): Promise<void> {
     const passwordHash = await this.passwordHasher.hash(data.password);
     const { firstName, lastName, email } = data;
 
-    return this.usersService.create({
+    await this.usersService.create({
       firstName,
       lastName,
       email,
       passwordHash,
     });
+
+    const code = await this.otpService.issue(email, 'verify-email');
+    console.log(code);
+    
   }
 
   async login(email: string, password: string) {

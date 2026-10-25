@@ -15,6 +15,7 @@ import { OtpModule } from './modules/otp/otp.module.js';
 import { minutes, ThrottlerModule } from '@nestjs/throttler';
 import { RedisModule } from './modules/redis/redis.module.js';
 import { ConfigModule } from '@nestjs/config';
+import { z } from 'zod';
 
 @Module({
   imports: [
@@ -23,6 +24,12 @@ import { ConfigModule } from '@nestjs/config';
     AuthModule,
     ConfigModule.forRoot({
       isGlobal: true,
+      validationSchema: z.object({
+        PORT: z.coerce.number().default(3000),
+        JWT_SECRET: z.string().min(64),
+        JWT_ISSUER: z.string().startsWith('http'),
+        HMAC_SECRET: z.string().min(10),
+      }),
     }),
     AuthenticationModule.forRootAsync({
       useFactory: () => ({

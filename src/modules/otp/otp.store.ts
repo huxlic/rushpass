@@ -32,8 +32,8 @@ export class OtpStore {
     return `otp:${purpose}:${email}`;
   }
 
-  async save(email: string, hash: string, ttlSeconds: number): Promise<void> {
-    const key = this.key('verify-email', email);
+  async save(email: string, hash: string, ttlSeconds: number, purpose: OtpPurpose): Promise<void> {
+    const key = this.key(purpose, email);
 
     await this.redis
       .multi()

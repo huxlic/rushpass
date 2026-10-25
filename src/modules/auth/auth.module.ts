@@ -6,6 +6,7 @@ import { UsersModule } from '../users/users.module.js';
 import { JwtAuth } from './jwt-auth.js';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
+import { OtpModule } from '../otp/otp.module.js';
 
 @Module({
   providers: [
@@ -18,6 +19,6 @@ import { ThrottlerGuard } from '@nestjs/throttler';
     },
   ],
   controllers: [AuthController],
-  imports: [UsersModule],
+  imports: [UsersModule, OtpModule],
 })
 export class AuthModule {}

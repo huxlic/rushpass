@@ -12,6 +12,7 @@ import { SkipThrottle } from '@nestjs/throttler';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @ResponseMessage("User registered successfully. OTP has been sent for verification")
   @Post('/register')
   register(@Body() registerDto: RegisterDto) {
     return this.authService.register(registerDto);
@@ -24,4 +25,6 @@ export class AuthController {
     const { email, password } = loginDto;
     return this.authService.login(email, password);
   }
+  
+  
 }

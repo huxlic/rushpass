@@ -5,6 +5,7 @@ import { OtpStore } from './otp.store.js';
 
 @Module({
   providers: [OtpService, OtpStore],
-  imports: [RedisModule]
+  imports: [RedisModule],
+  exports: [OtpService]
 })
 export class OtpModule {}
