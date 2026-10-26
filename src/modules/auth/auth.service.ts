@@ -14,7 +14,6 @@ import {
 } from '@nestjs/authentication';
 import { UsersService } from '../users/users.service.js';
 import { OtpService } from '../otp/otp.service.js';
-import { email } from 'zod';
 
 @Injectable()
 export class AuthService {
@@ -79,17 +78,24 @@ export class AuthService {
   async verifyOtp(email: string, code: string): Promise<void> {
     const status = await this.otpService.verify(email, code, 'verify-email');
 
-    if (status === 'EXPIRED' || status === 'INVALID')
-      throw new BadRequestException('Invalid or expired code', {
-        errorCode: 'INVALID_OR_EXPIRED_CODE',
-      });
-    
-    if (status === 'LOCKED')
-      throw new HttpException(
-        'Too many attempts, request a new code',
-        HttpStatus.TOO_MANY_REQUESTS,
-        { errorCode: 'LOCKED' },
-      );
+    switch (status) {
+      case 'OK':
+        break;
+      case 'EXPIRED':
+      case 'INVALID':
+        throw new BadRequestException('Invalid or expired code', {
+          errorCode: 'INVALID_OR_EXPIRED_CODE',
+        });
+      case 'LOCKED':
+        throw new HttpException(
+          'Too many requests, request a new code',
+          HttpStatus.TOO_MANY_REQUESTS,
+          { errorCode: 'LOCKED' },
+        );
+      default: {
+        throw new Error(status);
+      }
+    }
 
     await this.usersService.update(
       { email, verifiedAt: null },

@@ -42,6 +42,7 @@ export class AuthController {
 
   @SkipThrottle({ default: false })
   @Post('/verify-otp')
+  @HttpCode(HttpStatus.OK)
   @ResponseMessage('Email verified')
   verifyOtp(@Body() verifyOtpDto: VerifyOtpDto) {
     const { email, code } = verifyOtpDto;
