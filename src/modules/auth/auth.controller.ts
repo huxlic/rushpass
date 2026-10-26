@@ -6,6 +6,7 @@ import { ResponseMessage } from '../../common/decorators/response-message.decora
 import { Public } from '@nestjs/authentication';
 import { SkipThrottle } from '@nestjs/throttler';
 import { VerifyOtpDto } from './dto/verify-otp.dto.js';
+import { RequestOtpDto } from './dto/request-otp.dto.js';
 
 @Public()
 @SkipThrottle()
@@ -13,10 +14,10 @@ import { VerifyOtpDto } from './dto/verify-otp.dto.js';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Post('/register')
   @ResponseMessage(
     'User registered successfully. OTP has been sent for verification',
   )
-  @Post('/register')
   register(@Body() registerDto: RegisterDto) {
     return this.authService.register(registerDto);
   }
@@ -29,11 +30,21 @@ export class AuthController {
     return this.authService.login(email, password);
   }
 
-  // @Post("/request-otp")
-  @ResponseMessage("Email verified")
+  @SkipThrottle({ default: false })
+  @Post('/request-otp')
+  @ResponseMessage(
+    'If the account exist, an OTP has been sent for verification',
+  )
+  requestOtp(@Body() requestOtpDto: RequestOtpDto) {
+    const { email } = requestOtpDto;
+    return this.authService.requestOtp(email);
+  }
+
+  @SkipThrottle({ default: false })
   @Post('/verify-otp')
+  @ResponseMessage('Email verified')
   verifyOtp(@Body() verifyOtpDto: VerifyOtpDto) {
-    const {email, code} = verifyOtpDto
+    const { email, code } = verifyOtpDto;
     return this.authService.verifyOtp(email, code);
   }
 }

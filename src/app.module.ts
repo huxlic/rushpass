@@ -14,7 +14,7 @@ import { AuthenticationModule } from '@nestjs/authentication';
 import { OtpModule } from './modules/otp/otp.module.js';
 import { minutes, ThrottlerModule } from '@nestjs/throttler';
 import { RedisModule } from './modules/redis/redis.module.js';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { z } from 'zod';
 
 @Module({
@@ -32,10 +32,11 @@ import { z } from 'zod';
       }),
     }),
     AuthenticationModule.forRootAsync({
-      useFactory: () => ({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
         accessToken: {
-          key: process.env.JWT_SECRET!,
-          issuer: process.env.JWT_ISSUER!,
+          key: config.getOrThrow<string>('JWT_SECRET'),
+          issuer: config.getOrThrow<string>('JWT_ISSUER'),
           audience: 'rushpass',
           ttl: '15m',
         },

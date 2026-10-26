@@ -7,9 +7,14 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto.js';
-import { PasswordHasher, TokenService } from '@nestjs/authentication';
+import {
+  PasswordHasher,
+  TokenPair,
+  TokenService,
+} from '@nestjs/authentication';
 import { UsersService } from '../users/users.service.js';
 import { OtpService } from '../otp/otp.service.js';
+import { email } from 'zod';
 
 @Injectable()
 export class AuthService {
@@ -31,11 +36,10 @@ export class AuthService {
       passwordHash,
     });
 
-    const code = await this.otpService.issue(email, 'verify-email');
-    console.log(code);
+    await this.otpService.issue(email, 'verify-email');
   }
 
-  async login(email: string, password: string) {
+  async login(email: string, password: string): Promise<TokenPair> {
     const user = await this.usersService.userOrNull({ email });
 
     const valid = await this.passwordHasher.verify(
@@ -68,13 +72,18 @@ export class AuthService {
     });
   }
 
-  async verifyOtp(email: string, code: string) {
+  async requestOtp(email: string): Promise<void> {
+    await this.otpService.issue(email, 'verify-email');
+  }
+
+  async verifyOtp(email: string, code: string): Promise<void> {
     const status = await this.otpService.verify(email, code, 'verify-email');
 
     if (status === 'EXPIRED' || status === 'INVALID')
       throw new BadRequestException('Invalid or expired code', {
         errorCode: 'INVALID_OR_EXPIRED_CODE',
       });
+    
     if (status === 'LOCKED')
       throw new HttpException(
         'Too many attempts, request a new code',
