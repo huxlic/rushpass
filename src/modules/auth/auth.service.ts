@@ -40,9 +40,9 @@ export class AuthService {
 
     const code = await this.otpService.issue(email, 'verify-email');
     await this.mailer.send(EmailVerificationMail, {
-      to: {name: firstName, address: email},
-      data: {code}
-    })
+      to: { name: firstName, address: email },
+      data: { code },
+    });
   }
 
   async login(email: string, password: string): Promise<TokenPair> {
@@ -79,7 +79,15 @@ export class AuthService {
   }
 
   async requestOtp(email: string): Promise<void> {
-    await this.otpService.issue(email, 'verify-email');
+    const user = await this.usersService.userOrNull({ email });
+    if (user) {
+      const code = await this.otpService.issue(email, 'verify-email');
+
+      await this.mailer.send(EmailVerificationMail, {
+        to: { name: user.firstName, address: email },
+        data: { code },
+      });
+    }
   }
 
   async verifyOtp(email: string, code: string): Promise<void> {

@@ -17,6 +17,7 @@ model User {
   verifiedAt   DateTime? @map("verified_at")
   createdAt    DateTime  @default(now()) @map("created_at")
   updatedAt    DateTime  @updatedAt @map("updated_at")
+  events       Event[]
 
   @@map("users")
 }
@@ -25,4 +26,27 @@ enum Role {
   ATTENDEE
   ORGANIZER
   ADMIN
+}
+
+model Event {
+  id           String      @id @default(uuid(7))
+  title        String      @db.VarChar(100)
+  description  String?     @db.Text
+  venueName    String      @map("venue_name") @db.VarChar(100)
+  venueAddress String      @map("venue_address") @db.VarChar(100)
+  venueCity    String      @map("venue_city") @db.VarChar(100)
+  status       EventStatus @default(DRAFT)
+  startTime    DateTime    @map("start_time")
+  author       User        @relation(fields: [authorId], references: [id], onDelete: Restrict)
+  authorId     String      @map("author_id")
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+  @@map("events")
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  CANCELLED
 }

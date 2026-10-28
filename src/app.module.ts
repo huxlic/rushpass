@@ -21,6 +21,7 @@ import { join } from 'node:path';
 import { EmailVerificationMail } from './modules/notifications/email-verification.mail.js';
 import { NotificationsModule } from './modules/notifications/notifications.module.js';
 import { mailTransport } from './mail-transport.js';
+import { EventsModule } from './modules/events/events.module.js';
 
 @Module({
   imports: [
@@ -56,19 +57,21 @@ import { mailTransport } from './mail-transport.js';
           limit: 5,
         },
       ],
-      errorMessage: 'Try again in a minute.',
     }),
     RedisModule,
-    MailModule.forRoot({
-      transport: mailTransport(),
-      templates: new FileTemplateEngine({
-        dir: join(import.meta.dirname, './modules/mail/templates'),
-        layout: 'layout',
-        cache: process.env.NODE_ENV === 'production',
-      }),
-      from: 'RushPass Team <noreply@rushpass.test>',
+    MailModule.forRootAsync({
+      useFactory: () => ({
+        transport: mailTransport(),
+        templates: new FileTemplateEngine({
+          dir: join(import.meta.dirname, './modules/mail/templates'),
+          layout: 'layout',
+          cache: process.env.NODE_ENV === 'production',
+        }),
+        from: 'RushPass Team <noreply@rushpass.test>',
+      })
     }),
     NotificationsModule,
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [AppService, EmailVerificationMail],
