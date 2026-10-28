@@ -14,6 +14,8 @@ import {
 } from '@nestjs/authentication';
 import { UsersService } from '../users/users.service.js';
 import { OtpService } from '../otp/otp.service.js';
+import { Mailer } from '@nestjs/mail';
+import { EmailVerificationMail } from '../notifications/email-verification.mail.js';
 
 @Injectable()
 export class AuthService {
@@ -22,6 +24,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly tokenService: TokenService,
     private readonly otpService: OtpService,
+    private readonly mailer: Mailer,
   ) {}
 
   async register(data: RegisterDto): Promise<void> {
@@ -35,7 +38,11 @@ export class AuthService {
       passwordHash,
     });
 
-    await this.otpService.issue(email, 'verify-email');
+    const code = await this.otpService.issue(email, 'verify-email');
+    await this.mailer.send(EmailVerificationMail, {
+      to: {name: firstName, address: email},
+      data: {code}
+    })
   }
 
   async login(email: string, password: string): Promise<TokenPair> {

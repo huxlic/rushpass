@@ -16,8 +16,11 @@ import { minutes, ThrottlerModule } from '@nestjs/throttler';
 import { RedisModule } from './infra/redis/redis.module.js';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { z } from 'zod';
-import { FileMailTransport, FileTemplateEngine, MailModule } from '@nestjs/mail';
+import { FileTemplateEngine, MailModule } from '@nestjs/mail';
 import { join } from 'node:path';
+import { EmailVerificationMail } from './modules/notifications/email-verification.mail.js';
+import { NotificationsModule } from './modules/notifications/notifications.module.js';
+import { mailTransport } from './mail-transport.js';
 
 @Module({
   imports: [
@@ -53,11 +56,11 @@ import { join } from 'node:path';
           limit: 5,
         },
       ],
-      errorMessage: "Try again in a minute."
+      errorMessage: 'Try again in a minute.',
     }),
     RedisModule,
     MailModule.forRoot({
-      transport: new FileMailTransport({ directory: 'var/mail' }),
+      transport: mailTransport(),
       templates: new FileTemplateEngine({
         dir: join(import.meta.dirname, './modules/mail/templates'),
         layout: 'layout',
@@ -65,9 +68,10 @@ import { join } from 'node:path';
       }),
       from: 'RushPass Team <noreply@rushpass.test>',
     }),
+    NotificationsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, EmailVerificationMail],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): any {
