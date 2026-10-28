@@ -25,8 +25,8 @@ export class TransformInterceptor<T> implements NestInterceptor {
         message,
         data,
         meta: {
-          timestamp: new Date().toISOString(),
-        }
+          timestamp: new Date().toISOString()
+        },
       })),
     );
   }

@@ -12,6 +12,13 @@ import { Roles } from '../common/decorators/roles.decorator.js';
 @Injectable()
 export class RoleGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
+  private matchRoles(roles: string[], role: string) {
+    if (!roles.includes(role)) {
+      throw new UnauthorizedException('Admin access denied for this action', {
+        errorCode: 'UNAUTHORIZED',
+      });
+    }
+  }
 
   canActivate(
     context: ExecutionContext,
@@ -22,11 +29,8 @@ export class RoleGuard implements CanActivate {
     const request: Request = context.switchToHttp().getRequest();
     const role = request.headers['role'];
 
-    if (!role || roles[0] !== role)
-      throw new UnauthorizedException(
-        'You are not allowed to perform this action.',
-      );
-
+    if (!role || typeof role !== 'string') return false;
+    this.matchRoles(roles, role);
     return true;
   }
 }

@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { REDIS_CLIENT, type RedisClient } from '../redis/redis.module.js';
+import { REDIS_CLIENT, type RedisClient } from '../../infra/redis/redis.module.js';
 
 export type OtpPurpose = 'verify-email' | 'reset-password';
 const OTP_VERIFY_RESULTS = ['OK', 'EXPIRED', 'INVALID', 'LOCKED'] as const;
@@ -62,7 +62,7 @@ export class OtpStore {
     });
 
     if (!OTP_VERIFY_RESULTS.includes(result as OtpVerifyResult)) {
-      throw new Error(`Unexpected OTP verify result: ${String(result)}`);
+      throw new Error(`Unexpected OTP verify result`);
     }
 
     return result as OtpVerifyResult;

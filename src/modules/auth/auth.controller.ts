@@ -4,7 +4,7 @@ import { RegisterDto } from './dto/register.dto.js';
 import { LoginDto } from './dto/login.dto.js';
 import { ResponseMessage } from '../../common/decorators/response-message.decorator.js';
 import { Public } from '@nestjs/authentication';
-import { SkipThrottle } from '@nestjs/throttler';
+import { minutes, SkipThrottle, Throttle } from '@nestjs/throttler';
 import { VerifyOtpDto } from './dto/verify-otp.dto.js';
 import { RequestOtpDto } from './dto/request-otp.dto.js';
 
@@ -30,6 +30,7 @@ export class AuthController {
     return this.authService.login(email, password);
   }
 
+  @Throttle({ default: { limit: 1, ttl: minutes(1) } })
   @SkipThrottle({ default: false })
   @Post('/request-otp')
   @ResponseMessage(

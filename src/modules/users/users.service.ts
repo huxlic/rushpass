@@ -60,9 +60,11 @@ export class UsersService {
       if (
         err instanceof Prisma.PrismaClientKnownRequestError &&
         err.code === 'P2002'
-      ) {
-        throw new ConflictException('Email already in use');
-      }
+      )
+        throw new ConflictException('Email already in use', {
+          errorCode: 'EMAIL_ALREADY_EXIST',
+        });
+
       throw err;
     }
   }
@@ -71,9 +73,20 @@ export class UsersService {
     userWhereUniqueInput: Prisma.UserWhereUniqueInput,
     data: Prisma.UserUpdateInput,
   ): Promise<User | null> {
-    return await this.prisma.user.update({
-      where: userWhereUniqueInput,
-      data,
-    });
+    try {
+      return await this.prisma.user.update({
+        where: userWhereUniqueInput,
+        data,
+      });
+    } catch (err) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2025'
+      )
+        throw new ConflictException('Already verified', {
+          errorCode: 'ALREADY_VERIFIED',
+        });
+      throw err;
+    }
   }
 }

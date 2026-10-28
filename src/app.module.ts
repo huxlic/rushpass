@@ -13,9 +13,11 @@ import { AuthModule } from './modules/auth/auth.module.js';
 import { AuthenticationModule } from '@nestjs/authentication';
 import { OtpModule } from './modules/otp/otp.module.js';
 import { minutes, ThrottlerModule } from '@nestjs/throttler';
-import { RedisModule } from './modules/redis/redis.module.js';
+import { RedisModule } from './infra/redis/redis.module.js';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { z } from 'zod';
+import { FileMailTransport, FileTemplateEngine, MailModule } from '@nestjs/mail';
+import { join } from 'node:path';
 
 @Module({
   imports: [
@@ -51,8 +53,18 @@ import { z } from 'zod';
           limit: 5,
         },
       ],
+      errorMessage: "Try again in a minute."
     }),
     RedisModule,
+    MailModule.forRoot({
+      transport: new FileMailTransport({ directory: 'var/mail' }),
+      templates: new FileTemplateEngine({
+        dir: join(import.meta.dirname, './modules/mail/templates'),
+        layout: 'layout',
+        cache: process.env.NODE_ENV === 'production',
+      }),
+      from: 'RushPass Team <noreply@rushpass.test>',
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],
