@@ -39,10 +39,10 @@ export class AuthService {
     });
 
     const code = await this.otpService.issue(email, 'verify-email');
-    await this.mailer.send(EmailVerificationMail, {
+    this.mailer.send(EmailVerificationMail, {
       to: { name: firstName, address: email },
       data: { code },
-    });
+    }).catch((err) => console.error(err))
   }
 
   async login(email: string, password: string): Promise<TokenPair> {

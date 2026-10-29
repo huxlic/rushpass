@@ -37,8 +37,8 @@ model Event {
   venueCity    String      @map("venue_city") @db.VarChar(100)
   status       EventStatus @default(DRAFT)
   startTime    DateTime    @map("start_time")
-  author       User        @relation(fields: [authorId], references: [id], onDelete: Restrict)
-  authorId     String      @map("author_id")
+  organizer    User        @relation(fields: [organizerId], references: [id], onDelete: Restrict)
+  organizerId  String      @map("organizer_id")
   createdAt    DateTime    @default(now()) @map("created_at")
   updatedAt    DateTime    @updatedAt @map("updated_at")
 
