@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model User {
+  id           String    @id @default(uuid(7))
+  firstName    String    @map("first_name") @db.VarChar(100)
+  lastName     String    @map("last_name") @db.VarChar(100)
+  email        String    @unique @db.VarChar(100)
+  passwordHash String    @map("password_hash")
+  role         Role      @default(ATTENDEE)
+  verifiedAt   DateTime? @map("verified_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  events       Event[]
+
+  @@map("users")
+}
+
+enum Role {
+  ATTENDEE
+  ORGANIZER
+  ADMIN
+}
+
+model Event {
+  id           String      @id @default(uuid(7))
+  title        String      @db.VarChar(100)
+  description  String?     @db.Text
+  venueName    String      @map("venue_name") @db.VarChar(100)
+  venueAddress String      @map("venue_address") @db.VarChar(100)
+  venueCity    String      @map("venue_city") @db.VarChar(100)
+  status       EventStatus @default(DRAFT)
+  startTime    DateTime    @map("start_time")
+  organizer    User        @relation(fields: [organizerId], references: [id], onDelete: Restrict)
+  organizerId  String      @map("organizer_id")
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+  @@map("events")
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  CANCELLED
+}
