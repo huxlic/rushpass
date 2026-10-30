@@ -68,7 +68,7 @@ import { EventsModule } from './modules/events/events.module.js';
           cache: process.env.NODE_ENV === 'production',
         }),
         from: 'RushPass Team <noreply@rushpass.test>',
-      })
+      }),
     }),
     NotificationsModule,
     EventsModule,

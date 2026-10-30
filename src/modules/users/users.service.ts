@@ -74,10 +74,14 @@ export class UsersService {
     data: Prisma.UserUpdateInput,
   ): Promise<User | null> {
     try {
-      return await this.prisma.user.update({
+      const user = await this.prisma.user.update({
         where: userWhereUniqueInput,
-        data,
+        data
       });
+      
+      if (!user) throw new NotFoundException('User not found');
+      return user;
+      
     } catch (err) {
       if (
         err instanceof Prisma.PrismaClientKnownRequestError &&
@@ -88,5 +92,14 @@ export class UsersService {
         });
       throw err;
     }
+  }
+
+  async delete(
+    userWhereUniqueInput: Prisma.UserWhereUniqueInput,
+  ): Promise<UserRT> {
+    return await this.prisma.user.delete({
+      where: userWhereUniqueInput,
+      omit: { passwordHash: true },
+    });
   }
 }

@@ -4,6 +4,7 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto.js';
@@ -25,6 +26,7 @@ export class AuthService {
     private readonly tokenService: TokenService,
     private readonly otpService: OtpService,
     private readonly mailer: Mailer,
+    private readonly logger: Logger,
   ) {}
 
   async register(data: RegisterDto): Promise<void> {
@@ -39,10 +41,12 @@ export class AuthService {
     });
 
     const code = await this.otpService.issue(email, 'verify-email');
-    this.mailer.send(EmailVerificationMail, {
-      to: { name: firstName, address: email },
-      data: { code },
-    }).catch((err) => console.error(err))
+    this.mailer
+      .send(EmailVerificationMail, {
+        to: { name: firstName, address: email },
+        data: { code },
+      })
+      .catch((err) => this.logger.error('SMTP', err));
   }
 
   async login(email: string, password: string): Promise<TokenPair> {
@@ -83,10 +87,12 @@ export class AuthService {
     if (user) {
       const code = await this.otpService.issue(email, 'verify-email');
 
-      await this.mailer.send(EmailVerificationMail, {
-        to: { name: user.firstName, address: email },
-        data: { code },
-      });
+      this.mailer
+        .send(EmailVerificationMail, {
+          to: { name: user.firstName, address: email },
+          data: { code },
+        })
+        .catch((err) => this.logger.error('SMTP', err));
     }
   }
 

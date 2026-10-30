@@ -1,45 +1,72 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param, ParseUUIDPipe, Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { EventsService } from './events.service.js';
 import { CreateEventDto } from './dto/create-event.dto.js';
 import { Event } from '../../generated/prisma/client.js';
 import { CurrentUser } from '@nestjs/authentication';
-import type { AuthUser } from '../auth/auth-user.js';
+import { ResponseMessage } from '../../common/decorators/response-message.decorator.js';
+import { SkipThrottle } from '@nestjs/throttler';
+import { RoleGuard } from '../../guards/role.guard.js';
+import { Roles } from '../../common/decorators/roles.decorator.js';
+import { UpdateEventDto } from './dto/update-event.dto.js';
 
-// @Public()
-@Controller('me/events')
+@SkipThrottle()
+@Controller()
 export class EventsController {
   constructor(private readonly eventsService: EventsService) {}
 
-  @Post('create')
+  @Post('me/events/create')
+  @ResponseMessage('Event created')
   create(
     @Body() createEventDto: CreateEventDto,
-    @CurrentUser('id') organizerId: string,
+    @CurrentUser('id', new ParseUUIDPipe()) organizerId: string,
   ): Promise<Event> {
-    return this.eventsService.create({ ...createEventDto, organizerId });
+    return this.eventsService.create(createEventDto, organizerId);
   }
 
-  @Get()
+  @Get('events/all')
+  @UseGuards(RoleGuard)
+  @Roles(['admin'])
+  @ResponseMessage('All events fetched')
   findAll(): Promise<Event[]> {
     return this.eventsService.findAll({});
   }
 
-  @Get()
-  findMine(@CurrentUser() user: AuthUser): Promise<Event[]> {
-    return this.eventsService.findMine({ where: { organizerId: user.id } });
+  @Get('me/events')
+  @ResponseMessage('Events fetched')
+  findMine(
+    @CurrentUser('id', new ParseUUIDPipe()) organizerId: string,
+  ): Promise<Event[]> {
+    return this.eventsService.findMine({ where: { organizerId } });
   }
-  //
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.eventsService.findOne(+id);
-  // }
-  //
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateEventDto: UpdateEventDto) {
-  //   return this.eventsService.update(+id, updateEventDto);
-  // }
-  //
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.eventsService.remove(+id);
-  // }
+
+  @Get('me/events/:id')
+  @ResponseMessage('Event found')
+  findOne(
+    @CurrentUser('id', new ParseUUIDPipe()) organizerId: string,
+    @Param('id') id: string,
+  ): Promise<Event> {
+    return this.eventsService.findOne(id, organizerId);
+  }
+
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() updateEventDto: UpdateEventDto) {
+    return this.eventsService.update(+id, updateEventDto);
+  }
+
+  @Delete('me/events/:id')
+  @ResponseMessage('Event deleted')
+  remove(
+    @CurrentUser('id', new ParseUUIDPipe()) organizerId: string,
+    @Param('id') id: string,
+  ): Promise<Event | undefined> {
+    return this.eventsService.remove(id, organizerId);
+  }
 }

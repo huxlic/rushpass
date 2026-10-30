@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { AuthService } from './auth.service.js';
 import { AuthController } from './auth.controller.js';
 import { PasswordHasher } from '@nestjs/authentication';
@@ -17,6 +17,7 @@ import { OtpModule } from '../otp/otp.module.js';
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
+    Logger,
   ],
   controllers: [AuthController],
   imports: [UsersModule, OtpModule],

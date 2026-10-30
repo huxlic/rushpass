@@ -1,5 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { REDIS_CLIENT, type RedisClient } from '../../infra/redis/redis.module.js';
+import {
+  REDIS_CLIENT,
+  type RedisClient,
+} from '../../infra/redis/redis.module.js';
 
 export type OtpPurpose = 'verify-email' | 'reset-password';
 const OTP_VERIFY_RESULTS = ['OK', 'EXPIRED', 'INVALID', 'LOCKED'] as const;

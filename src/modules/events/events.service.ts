@@ -1,15 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../infra/prisma/prisma.service.js';
 import { Event, Prisma } from '../../generated/prisma/client.js';
+import { UpdateEventDto } from './dto/update-event.dto.js';
 
 @Injectable()
 export class EventsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: Prisma.EventUncheckedCreateInput): Promise<Event> {
+  async create(
+    data: Prisma.EventUncheckedCreateWithoutOrganizerInput,
+    organizerId: string,
+  ): Promise<Event> {
     return await this.prisma.event.create({
-      data: {...data}
-    })
+      data: { ...data, organizerId },
+    });
   }
 
   async findAll(params: {
@@ -43,16 +47,39 @@ export class EventsService {
       orderBy,
     });
   }
-  //
-  // findOne(id: number) {
-  //   return `This action returns a #${id} event`;
-  // }
-  //
-  // update(id: number, updateEventDto: UpdateEventDto) {
-  //   return `This action updates a #${id} event`;
-  // }
-  //
-  // remove(id: number) {
-  //   return `This action removes a #${id} event`;
-  // }
+
+  async findOne(id: string, organizerId: string): Promise<Event> {
+    const event = await this.prisma.event.findUnique({
+      where: {
+        id,
+        organizerId,
+      },
+    });
+
+    if (!event) throw new NotFoundException('Event does not exist');
+
+    return event;
+  }
+  
+  update(id: number, updateEventDto: UpdateEventDto) {
+    return `This action updates a #${id} event`;
+  }
+  
+  async remove(id: string, organizerId: string): Promise<Event | undefined> {
+    try {
+      return await this.prisma.event.delete({
+        where: {
+          id,
+          organizerId,
+        },
+      });
+    } catch (err) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2025'
+      ) {
+        throw new NotFoundException('Cannot delete task');
+      }
+    }
+  }
 }

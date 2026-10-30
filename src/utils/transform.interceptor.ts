@@ -16,7 +16,7 @@ export class TransformInterceptor<T> implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest<Request>();
     const response = context.switchToHttp().getResponse<Response>();
-    
+
     const path = request.path;
     const statusCode = response.statusCode;
     const message =
@@ -29,7 +29,7 @@ export class TransformInterceptor<T> implements NestInterceptor {
         data,
         meta: {
           timestamp: new Date().toISOString(),
-          path
+          path,
         },
       })),
     );

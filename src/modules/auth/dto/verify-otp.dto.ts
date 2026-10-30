@@ -9,9 +9,7 @@ export class VerifyOtpDto {
   @Length(5, 100)
   email: string;
 
-  @Transform(({ value }) =>
-    typeof value === 'string' ? value.trim() : value,
-  )
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   @IsString()
   @Length(6, 6)
   code: string;

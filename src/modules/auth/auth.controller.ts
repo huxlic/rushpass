@@ -32,6 +32,7 @@ export class AuthController {
 
   @Throttle({ default: { limit: 1, ttl: minutes(1) } })
   @SkipThrottle({ default: false })
+  @HttpCode(HttpStatus.OK)
   @Post('/request-otp')
   @ResponseMessage(
     'If the account exist, an OTP has been sent for verification',

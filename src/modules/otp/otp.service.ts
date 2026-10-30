@@ -20,7 +20,7 @@ export class OtpService {
   async issue(email: string, purpose: OtpPurpose): Promise<string> {
     const code = randomInt(0, 1_000_000).toString().padStart(6, '0');
     await this.otpStore.save(email, this.hashCode(code), TTL_SECONDS, purpose);
-    
+
     console.log(code);
     return code;
   }
